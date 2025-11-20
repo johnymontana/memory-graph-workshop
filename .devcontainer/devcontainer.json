@@ -1,0 +1,106 @@
+{
+  "name": "Pydantic AI Neo4j",
+  
+  // Use the base universal image with all common development tools
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Python extensions
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        
+        // Neo4j extension
+        "neo4j.neo4j-vscode",
+        
+        // JavaScript/TypeScript extensions
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        
+        // Docker extension
+        "ms-azuretools.vscode-docker",
+        
+        // Utility extensions
+        "eamodio.gitlens",
+        "GitHub.copilot"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/python/current/bin/python",
+        "python.formatting.provider": "black",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": "explicit"
+        },
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter"
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
+      }
+    }
+  },
+  
+  // Forward ports for local development
+  "forwardPorts": [
+    3000,  // Next.js frontend
+    8000,  // FastAPI backend
+    7474,  // Neo4j Browser
+    7687   // Neo4j Bolt
+  ],
+  
+  "portsAttributes": {
+    "3000": {
+      "label": "Frontend (Next.js)",
+      "onAutoForward": "notify"
+    },
+    "8000": {
+      "label": "Backend (FastAPI)",
+      "onAutoForward": "notify"
+    },
+    "7474": {
+      "label": "Neo4j Browser",
+      "onAutoForward": "silent"
+    },
+    "7687": {
+      "label": "Neo4j Bolt",
+      "onAutoForward": "silent"
+    }
+  },
+  
+  // Features to install
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest"
+    }
+  },
+  
+  // Commands to run after the container is created
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  
+  // Set environment variables
+  "remoteEnv": {
+    "ENVIRONMENT": "development"
+  },
+  
+  // Use 'forwardPorts' to make a list of ports inside the container available locally
+  "remoteUser": "codespace"
+}
+
