@@ -1,5 +1,7 @@
 # News Chat Agent - Pydantic AI + Neo4j
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/johnymontana/pydantic-ai-neo4j?quickstart=1)
+
 A full-stack chat application that uses Pydantic AI to query a Neo4j graph database of world news. The application features a modern Next.js frontend with Chakra UI and a Python FastAPI backend powered by Pydantic AI.
 
 ## Features
@@ -10,12 +12,16 @@ A full-stack chat application that uses Pydantic AI to query a Neo4j graph datab
 - 🌍 **Geospatial Search**: Find news near specific locations using latitude/longitude and radius
 - 📅 **Time-Based Search**: Filter news by date ranges with support for relative periods (last_week, last_month, etc.)
 - 🧠 **Memory System**: Learns and remembers user preferences from conversations
-- 🎨 **Memory Graph Visualization**: Interactive graph view of user memory using NVL
+- 🗂️ **Conversation Threads**: Persistent conversation history with automatic title generation
+- 🔧 **Procedural Memory**: Tracks reasoning steps, tool calls, and agent decision-making process
+- 🎨 **Memory Graph Visualization**: Interactive graph view of user memory, threads, and reasoning steps using React Sigma (Sigma.js)
+- 🛠️ **Schema Tools**: Database schema inspection, natural language to Cypher query generation, and direct Cypher execution
 - 💬 Interactive chat interface built with Next.js and Chakra UI
 - 🔎 Search news by topic, keywords, people, organizations, or locations
 - 📰 Sample world news dataset included
 - 🚀 Real-time communication between frontend and backend
 - 🔄 Toggle memory on/off to control preference learning
+- 🔁 Intelligent retry logic for handling empty search results
 
 ## Architecture
 
@@ -48,6 +54,42 @@ A full-stack chat application that uses Pydantic AI to query a Neo4j graph datab
 - **Node.js 18+** - Frontend runtime
 - **Neo4j 5.x** - Graph database (one instance required, two recommended for memory features)
 - **OpenAI API Key** - For Pydantic AI agent and preference extraction
+
+## Quick Start with GitHub Codespaces
+
+The easiest way to get started is using GitHub Codespaces. Everything is pre-configured and ready to go!
+
+1. **Open in Codespaces**
+   - Click the "Code" button on GitHub
+   - Select "Codespaces" tab
+   - Click "Create codespace on main"
+
+2. **Wait for automatic setup** (takes 2-3 minutes)
+   - Installs `uv`, Python, Node.js, and all dependencies
+   - Starts Neo4j via Docker Compose
+   - Initializes sample news data
+
+3. **Configure your API key**
+   ```bash
+   # Edit backend/.env and add your OpenAI API key
+   OPENAI_API_KEY=your_key_here
+   ```
+
+4. **Start the application**
+   ```bash
+   # Terminal 1: Start backend
+   make backend
+   
+   # Terminal 2: Start frontend
+   make frontend
+   ```
+
+5. **Access the application**
+   - Frontend: `http://localhost:3000`
+   - Backend API: `http://localhost:8000/docs`
+   - Neo4j Browser: `http://localhost:7474` (neo4j/password)
+
+See [`.devcontainer/README.md`](./.devcontainer/README.md) for more details on the Codespaces setup.
 
 ## Installation
 
@@ -132,12 +174,21 @@ cp .env.example .env
 # - NEO4J_PASSWORD=password
 # - OPENAI_API_KEY=your-openai-api-key
 #
-# Optional (for memory/preferences features):
+# Optional settings:
+# - OPENAI_MODEL=gpt-4o  # AI model to use (default: gpt-4o)
+# - ENVIRONMENT=development  # Used for sample data initialization safety
+#
+# Optional (for memory/preferences/threads features):
 # - MEMORY_NEO4J_URI=bolt://localhost:7688  # Separate instance for memory
 # - MEMORY_NEO4J_USERNAME=neo4j
 # - MEMORY_NEO4J_PASSWORD=memorypass
 #
-# If MEMORY_NEO4J_URI is not set, memory and preferences features will be disabled
+# Optional (CORS configuration):
+# - CORS_ALLOW_ORIGINS=http://localhost:3000,https://example.com
+#   (If not set, allows all origins)
+#
+# If MEMORY_NEO4J_URI is not set, memory, preferences, threads, and
+# procedural memory features will be disabled
 ```
 
 Alternatively, use `uv run` to automatically manage the virtual environment:
@@ -164,7 +215,33 @@ cp .env.example .env
 
 ## Running the Application
 
-### Start Backend Server
+### Quick Start with Makefile
+
+The project includes a Makefile with convenient commands:
+
+```bash
+# Start backend (automatically uses uv)
+make backend
+
+# Start frontend
+make frontend
+
+# Install all dependencies
+make install
+
+# Start Neo4j with Docker
+make docker-up
+
+# Initialize sample news data
+make init-sample-data
+
+# View all available commands
+make help
+```
+
+### Manual Start
+
+#### Start Backend Server
 
 ```bash
 cd backend
@@ -179,7 +256,7 @@ uvicorn app.main:app --reload
 
 The backend will be available at `http://localhost:8000`
 
-### Start Frontend Development Server
+#### Start Frontend Development Server
 
 ```bash
 cd frontend
@@ -228,6 +305,41 @@ To enable memory features:
 3. Restart the backend server
 
 The schema will be automatically initialized when the backend starts.
+
+## Agent Capabilities
+
+The news agent includes several intelligent features to provide better responses:
+
+### Intelligent Retry Logic
+
+The agent automatically retries searches when results are empty or insufficient:
+- **Automatic Retries**: Tools retry up to 3 times when returning empty results
+- **Parameter Adjustments**: Automatically increases search limits on retries
+- **Transparent Logging**: All retry attempts are logged and visible in the API response
+- **Fallback Strategies**: Agent learns from failed attempts and adjusts its approach
+
+### Multi-Step Reasoning
+
+The agent can perform multi-iteration reasoning for complex queries:
+- **Reasoning Iterations**: Multiple rounds of tool calls and analysis (configurable, default: 1)
+- **Quality Evaluation**: Automatically evaluates if tool results are sufficient
+- **Adaptive Search**: Tries different approaches when initial searches fail
+- **Context Preservation**: Maintains conversation context across reasoning iterations
+
+### Tool Selection Intelligence
+
+The agent intelligently selects from 10 available tools based on your query:
+- **Semantic Understanding**: Uses vector search for concept-based queries
+- **Structured Filtering**: Uses topic/location/time filters for specific criteria
+- **Schema Exploration**: Can inspect database structure for complex queries
+- **Cypher Generation**: Converts natural language to Cypher for advanced data needs
+
+### Response Features
+
+- **Detailed Reasoning Steps**: See exactly how the agent arrived at its answer
+- **Tool Call Transparency**: View all tool calls with arguments and outputs
+- **Agent Context**: Inspect system prompt, model used, and available tools
+- **Conversation Context**: Long thread histories are automatically summarized
 
 ## Usage Examples
 
@@ -348,15 +460,51 @@ To enable memory features, set these environment variables in `.env`:
 
 ### Memory Graph Visualization
 
-The application includes a powerful graph visualization feature that displays your user memory:
+The application includes a powerful graph visualization feature that displays your complete memory system:
 
-- **Interactive Graph**: View preferences and categories as nodes with relationships
-- **Color-Coded Nodes**: Blue for preferences, green for categories
+- **Interactive Graph**: View preferences, categories, threads, messages, reasoning steps, and tool calls
+- **Color-Coded Nodes**: Different colors for each node type (preferences, threads, messages, reasoning steps, tools)
 - **Zoom Controls**: Zoom in, out, and reset the view
 - **Node Details**: Click nodes to see detailed information
 - **Real-time Updates**: Refresh to see the latest memory state
+- **Procedural Memory**: Visualize how the agent reasons and which tools it uses
 
-See [MEMORY_GRAPH_VISUALIZATION.md](./MEMORY_GRAPH_VISUALIZATION.md) for detailed documentation.
+The graph shows:
+- **Declarative Memory**: User preferences and categories
+- **Episodic Memory**: Conversation threads and messages
+- **Procedural Memory**: Reasoning steps and tool usage patterns
+
+See [MEMORY_GRAPH_VISUALIZATION.md](./MEMORY_GRAPH_VISUALIZATION.md) and [PROCEDURAL_MEMORY_IMPLEMENTATION.md](./PROCEDURAL_MEMORY_IMPLEMENTATION.md) for detailed documentation.
+
+### Conversation Threads
+
+The application maintains persistent conversation threads when memory features are enabled:
+
+- **Automatic Thread Creation**: New conversations automatically create threads
+- **Thread History**: Load and continue previous conversations
+- **Auto-Generated Titles**: Threads automatically receive descriptive titles after the first exchange
+- **Thread Management**: List, view, update, and delete threads via API
+- **Message History**: Full conversation context is preserved with reasoning steps
+- **Conversation Summarization**: Long threads are automatically summarized to maintain context
+
+### Schema Tools
+
+Advanced database exploration tools for complex queries:
+
+- **get_database_schema**: Inspect the complete Neo4j schema including node labels, relationships, properties, constraints, and indexes
+- **text2cypher**: Convert natural language questions into Cypher queries using AI
+- **execute_cypher**: Execute custom read-only Cypher queries for advanced data exploration
+
+**Example usage:**
+```
+User: "What's the structure of the database?"
+Agent: [Uses get_database_schema to show all node types and relationships]
+
+User: "Show me how many articles each organization is mentioned in"
+Agent: [Uses text2cypher to generate appropriate Cypher query, then execute_cypher to run it]
+```
+
+See [SCHEMA_CYPHER_TOOLS.md](./SCHEMA_CYPHER_TOOLS.md) for complete documentation.
 
 ## Project Structure
 
@@ -365,30 +513,39 @@ pydantic-ai-neo4j/
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── main.py              # FastAPI application
-│   │   ├── agent.py             # Pydantic AI agent
-│   │   ├── neo4j_client.py      # Neo4j database client (news)
-│   │   ├── preferences_client.py # Neo4j preferences client
-│   │   └── memory_provider.py   # Memory/preference provider
-│   ├── initialize_sample_data.py # Sample data initialization script
-│   ├── pyproject.toml           # Project configuration and dependencies (uv)
-│   ├── requirements.txt         # Legacy requirements (optional)
-│   ├── setup_preferences_db.py  # Preferences database setup script
-│   └── MCP_INTEGRATION.md       # MCP server integration guide
+│   │   ├── main.py                      # FastAPI application
+│   │   ├── agent.py                     # Pydantic AI agent
+│   │   ├── neo4j_client.py              # Neo4j database client (news)
+│   │   ├── preferences_client.py        # Neo4j preferences client
+│   │   ├── sessions_client.py           # Conversation threads management
+│   │   ├── procedural_memory_client.py  # Reasoning steps and tool calls
+│   │   └── memory_provider.py           # Memory/preference provider
+│   ├── initialize_sample_data.py        # Sample data initialization script
+│   ├── pyproject.toml                   # Project configuration and dependencies (uv)
+│   ├── requirements.txt                 # Legacy requirements (optional)
+│   ├── setup_preferences_db.py          # Preferences database setup script
+│   └── MCP_INTEGRATION.md               # MCP server integration guide
 ├── frontend/
 │   ├── app/
-│   │   ├── layout.tsx           # Root layout
-│   │   ├── page.tsx             # Home page
-│   │   └── providers.tsx        # Chakra UI provider
+│   │   ├── layout.tsx                   # Root layout
+│   │   ├── page.tsx                     # Home page
+│   │   └── providers.tsx                # Chakra UI provider
 │   ├── components/
-│   │   ├── ChatInterface.tsx    # Main chat component
-│   │   ├── Sidebar.tsx          # Conversation sidebar
-│   │   └── MemoryGraphView.tsx  # Memory graph visualization
+│   │   ├── ChatInterface.tsx            # Main chat component
+│   │   ├── Sidebar.tsx                  # Conversation sidebar
+│   │   └── MemoryGraphView.tsx          # Memory graph visualization
 │   ├── lib/
-│   │   └── api.ts               # API client
+│   │   └── api.ts                       # API client
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── .env.example
+├── workshop/                             # Workshop materials and exercises
+│   ├── exercises/                        # Hands-on exercises
+│   │   ├── exercise1_short_term_memory.md
+│   │   ├── exercise2_user_preferences.md
+│   │   └── exercise3_procedural_memory.md
+│   ├── slides/                           # Workshop presentation
+│   └── README.md                         # Workshop guide
 └── README.md
 ```
 
@@ -396,20 +553,48 @@ pydantic-ai-neo4j/
 
 ### Backend API
 
+#### General
 - `GET /` - Root endpoint
 - `GET /health` - Health check
+
+#### Chat
 - `POST /chat` - Send message to agent
   ```json
   {
-    "message": "What are the latest news?"
+    "message": "What are the latest news?",
+    "memory_enabled": false,
+    "thread_id": "optional-thread-id"
   }
   ```
+  Returns chat response with reasoning steps, tool calls, and agent context
+
+#### News
 - `GET /categories` - Get available news topics
+
+#### Preferences (requires memory Neo4j instance)
 - `GET /preferences/status` - Get preference statistics
 - `GET /preferences/list` - List all stored preferences
-- `GET /preferences/graph` - Get memory graph for visualization
+- `GET /preferences/graph` - Get complete memory graph for visualization (includes preferences, threads, messages, reasoning steps, and tool calls)
 - `POST /preferences/clear` - Clear all preferences
 - `DELETE /preferences/{id}` - Delete a specific preference
+
+#### Conversation Threads (requires memory Neo4j instance)
+- `GET /threads` - List all conversation threads
+- `GET /threads/last-active` - Get the most recently active thread
+- `GET /threads/{thread_id}` - Get a specific thread with all messages
+- `POST /threads` - Create a new thread
+  ```json
+  {
+    "title": "Optional title"
+  }
+  ```
+- `PUT /threads/{thread_id}/title` - Update thread title
+  ```json
+  {
+    "title": "New title"
+  }
+  ```
+- `DELETE /threads/{thread_id}` - Delete a thread and all its messages
 
 ## Neo4j Graph Schema
 
@@ -482,10 +667,48 @@ User preferences and conversation threads are stored in a separate Neo4j instanc
   text: string,
   sender: string,
   timestamp: datetime (indexed),
-  reasoning_steps: string (JSON)
+  reasoning_steps: string (JSON),
+  agent_context: string (JSON)
 })
 
+// Thread relationships
 (:Thread)-[:HAS_MESSAGE]->(:Message)
+(:Thread)-[:FIRST_MESSAGE]->(:Message)
+(:Message)-[:NEXT_MESSAGE]->(:Message)
+```
+
+**Procedural Memory (Reasoning Steps and Tool Calls):**
+```cypher
+(:ReasoningStep {
+  id: string (unique, indexed),
+  step_number: integer,
+  reasoning_text: string,
+  timestamp: datetime,
+  message_id: string (indexed),
+  thread_id: string (indexed)
+})
+
+(:ToolCall {
+  id: string (unique, indexed),
+  step_id: string (indexed),
+  timestamp: datetime,
+  arguments: string (JSON),
+  output: string (JSON)
+})
+
+(:Tool {
+  name: string (unique),
+  description: string,
+  created_at: datetime,
+  last_used_at: datetime,
+  usage_count: integer
+})
+
+// Procedural memory relationships
+(:Message)-[:HAS_REASONING_STEP]->(:ReasoningStep)
+(:ReasoningStep)-[:NEXT_STEP]->(:ReasoningStep)
+(:ReasoningStep)-[:USES_TOOL]->(:ToolCall)
+(:ToolCall)-[:INSTANCE_OF]->(:Tool)
 ```
 
 **Preference Categories:**
@@ -553,21 +776,47 @@ To modify the UI, edit components in `frontend/components/`.
 
 ### Backend
 - Python 3.10+
-- FastAPI
-- Pydantic AI
-- Neo4j Python Driver
-- OpenAI API (configurable model, defaults to GPT-5-mini)
+- FastAPI - Modern web framework
+- Pydantic AI - AI agent framework
+- Neo4j Python Driver 5.14.1
+- OpenAI API (configurable model, defaults to GPT-4o)
+- uv - Fast Python package installer and resolver
 
 ### Frontend
-- Next.js 14
+- Next.js 14 - React framework with App Router
 - React 18
 - TypeScript
-- Chakra UI
-- Axios
-- NVL
+- Chakra UI v3 - Component library
+- Axios - HTTP client
+- React Sigma (Sigma.js) - Graph visualization
 
 ### Database
-- Neo4j 5.x
+- Neo4j 5.x (5.14.0 recommended)
+- Separate instances supported for news data and memory
+
+## Workshop Materials
+
+This repository includes comprehensive workshop materials in the `workshop/` directory:
+
+- **Hands-on Exercises**: Step-by-step exercises covering:
+  - Exercise 1: Short-term memory with Pydantic AI
+  - Exercise 2: User preferences and semantic memory
+  - Exercise 3: Procedural memory and reasoning steps
+  
+- **Workshop Guide**: Complete guide with setup instructions, concepts, and exercises
+- **Presentation Slides**: Workshop presentation materials
+
+See [workshop/README.md](./workshop/README.md) for the complete workshop guide.
+
+## Additional Documentation
+
+- [VECTOR_SEARCH_IMPLEMENTATION.md](./VECTOR_SEARCH_IMPLEMENTATION.md) - Vector search technical details
+- [GEOSPATIAL_TIME_SEARCH.md](./GEOSPATIAL_TIME_SEARCH.md) - Geospatial and time-based search
+- [MEMORY_GRAPH_VISUALIZATION.md](./MEMORY_GRAPH_VISUALIZATION.md) - Memory graph visualization guide
+- [PROCEDURAL_MEMORY_IMPLEMENTATION.md](./PROCEDURAL_MEMORY_IMPLEMENTATION.md) - Procedural memory technical details
+- [SCHEMA_CYPHER_TOOLS.md](./SCHEMA_CYPHER_TOOLS.md) - Schema tools and Cypher generation
+- [MCP_INTEGRATION.md](./backend/MCP_INTEGRATION.md) - Model Context Protocol integration
+- [CODESPACES_SETUP.md](./CODESPACES_SETUP.md) - GitHub Codespaces setup guide
 
 ## License
 
