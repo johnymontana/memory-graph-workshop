@@ -1,0 +1,7 @@
+fastapi>=0.115.0
+uvicorn>=0.24.0
+pydantic-ai>=1.0.0
+neo4j==5.14.1
+python-dotenv==1.0.0
+pydantic>=2.10
+openai>=1.0.0

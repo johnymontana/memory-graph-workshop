@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Main Neo4j instance for news graph data
+  neo4j:
+    image: neo4j:5.14.0
+    container_name: news-neo4j
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_dbms_default__database=neo4j
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p password 'RETURN 1;' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: Memory Neo4j instance for user preferences and conversation threads
+  # Uncomment this service to enable memory features
+  # neo4j-memory:
+  #   image: neo4j:5.14.0
+  #   container_name: news-neo4j-memory
+  #   ports:
+  #     - "7475:7474"  # HTTP (different port to avoid conflicts)
+  #     - "7688:7687"  # Bolt (different port to avoid conflicts)
+  #   environment:
+  #     - NEO4J_AUTH=neo4j/memorypass
+  #     - NEO4J_PLUGINS=["apoc"]
+  #     - NEO4J_dbms_default__database=neo4j
+  #   volumes:
+  #     - neo4j_memory_data:/data
+  #     - neo4j_memory_logs:/logs
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "cypher-shell -u neo4j -p memorypass 'RETURN 1;' || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_memory_data:
+  neo4j_memory_logs:
