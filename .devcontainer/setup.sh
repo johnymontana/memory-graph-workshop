@@ -35,9 +35,16 @@ cd ..
 
 # Create .env file from example if it doesn't exist
 if [ ! -f backend/.env ]; then
-    echo "📝 Creating .env file from .env.example..."
+    echo "📝 Creating backend/.env file from backend/.env.example..."
     cp backend/.env.example backend/.env
     echo "⚠️  Please update backend/.env with your API keys"
+fi
+
+# Create .env file from example if it doesn't exist
+if [ ! -f frontend/.env ]; then
+    echo "📝 Creating .env file from .env.example..."
+    cp frontend/.env.example frontend/.env
+    # echo "⚠️  Please update backend/.env with your API keys"
 fi
 
 # Wait for Neo4j to be ready

@@ -20,14 +20,14 @@
         
         // JavaScript/TypeScript extensions
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
+        "esbenp.prettier-vscode"
         
         // Docker extension
-        "ms-azuretools.vscode-docker",
+        // "ms-azuretools.vscode-docker",
         
         // Utility extensions
-        "eamodio.gitlens",
-        "GitHub.copilot"
+        //"eamodio.gitlens",
+        //"GitHub.copilot"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/usr/local/python/current/bin/python",
@@ -80,17 +80,17 @@
   },
   
   // Features to install
-  "features": {
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.11"
-    },
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20"
-    },
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "version": "latest"
-    }
-  },
+//   "features": {
+//     "ghcr.io/devcontainers/features/python:1": {
+//       "version": "3.11"
+//     },
+//     "ghcr.io/devcontainers/features/node:1": {
+//       "version": "20"
+//     },
+//     "ghcr.io/devcontainers/features/docker-in-docker:2": {
+//       "version": "latest"
+//     }
+//   },
   
   // Commands to run after the container is created
   "postCreateCommand": "bash .devcontainer/setup.sh",
