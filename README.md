@@ -1,6 +1,9 @@
-# News Chat Agent - Pydantic AI + Neo4j
+# Workshop: Building Intelligent Memory
+## Graph Databases for AI Agent Context and Retrieval
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/johnymontana/pydantic-ai-neo4j?quickstart=1)
+Welcome to this hands-on workshop on building intelligent memory systems for AI agents using Neo4j graph databases and Pydantic AI!
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/johnymontana/memory-graph-workshop?quickstart=1)
 
 A full-stack chat application that uses Pydantic AI to query a Neo4j graph database of world news. The application features a modern Next.js frontend with Chakra UI and a Python FastAPI backend powered by Pydantic AI.
 
