@@ -1,13 +1,15 @@
 # Workshop: Building Intelligent Memory
 ## Graph Databases for AI Agent Context and Retrieval
 
-Welcome to this hands-on workshop on building intelligent memory systems for AI agents using Neo4j graph databases and Pydantic AI!
+Welcome to this hands-on workshop on building intelligent memory systems for AI agents using Neo4j and Pydantic AI!
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/johnymontana/memory-graph-workshop?quickstart=1)
 
-A full-stack chat application that uses Pydantic AI to query a Neo4j graph database of world news. The application features a modern Next.js frontend with Chakra UI and a Python FastAPI backend powered by Pydantic AI.
+![Memory graph visualization](img/memory-graph-viz.png)
 
 ## Features
+
+A full-stack chat application that uses Pydantic AI to query a Neo4j graph database of world news. The application features a modern Next.js frontend with Chakra UI and a Python FastAPI backend powered by Pydantic AI.
 
 - 🤖 Intelligent chat agent powered by Pydantic AI and OpenAI GPT-4
 - 📊 Neo4j graph database for storing and querying world news
@@ -17,7 +19,7 @@ A full-stack chat application that uses Pydantic AI to query a Neo4j graph datab
 - 🧠 **Memory System**: Learns and remembers user preferences from conversations
 - 🗂️ **Conversation Threads**: Persistent conversation history with automatic title generation
 - 🔧 **Procedural Memory**: Tracks reasoning steps, tool calls, and agent decision-making process
-- 🎨 **Memory Graph Visualization**: Interactive graph view of user memory, threads, and reasoning steps using React Sigma (Sigma.js)
+- 🎨 **Memory Graph Visualization**: Interactive graph view of user memory, threads, and reasoning steps using NVL
 - 🛠️ **Schema Tools**: Database schema inspection, natural language to Cypher query generation, and direct Cypher execution
 - 💬 Interactive chat interface built with Next.js and Chakra UI
 - 🔎 Search news by topic, keywords, people, organizations, or locations
@@ -25,6 +27,30 @@ A full-stack chat application that uses Pydantic AI to query a Neo4j graph datab
 - 🚀 Real-time communication between frontend and backend
 - 🔄 Toggle memory on/off to control preference learning
 - 🔁 Intelligent retry logic for handling empty search results
+
+### Agent chat
+
+Full stack app with agent chat interface.
+
+![Agent chat UI](img/chat-ui.png)
+
+### Inspect agent context
+
+Detailed view of agent context for each turn including system prompt, user message, preference memory, tools available, and model used.
+
+![Inspect agent context](img/agent-context.png)
+
+### Inspect reasoning steps
+
+Detailed view of reasoning steps including tool calls, arguments, and tool call results.
+
+![Inspect reasoning steps](img/reasoning-steps.png)
+
+### Memory graph visualization
+
+Interactive graph visualization to inspect the memory graph.
+
+![View memory graph visualzation](img/procedural-memory-viz.png)
 
 ## Architecture
 
@@ -98,7 +124,7 @@ See [`.devcontainer/README.md`](./.devcontainer/README.md) for more details on t
 
 ### 1. Neo4j Setup
 
-You need at least one Neo4j instance for the news graph. Optionally, set up a second instance for memory/preferences features.
+Set up a second instance for memory/preferences features. The easiest way to get a Neo4j instance is to [create a free tier Neo4j Aura instance](https://console.neo4j.io). Other options:
 
 #### Option A: Docker Compose (Recommended - includes both instances)
 
@@ -388,7 +414,6 @@ The agent uses **semantic vector search** to find relevant articles by meaning, 
 - Finds contextually related articles
 - No need to craft perfect keyword queries
 
-See [VECTOR_SEARCH_IMPLEMENTATION.md](./VECTOR_SEARCH_IMPLEMENTATION.md) for technical details.
 
 ### Geospatial Search
 
@@ -426,7 +451,6 @@ Filter news articles by date ranges using both explicit dates and convenient rel
 2. Articles are filtered by their published date
 3. Results are sorted by publication date (newest first)
 
-See [GEOSPATIAL_TIME_SEARCH.md](./GEOSPATIAL_TIME_SEARCH.md) for complete technical documentation and additional tool suggestions.
 
 ### Memory System
 
@@ -477,7 +501,6 @@ The graph shows:
 - **Episodic Memory**: Conversation threads and messages
 - **Procedural Memory**: Reasoning steps and tool usage patterns
 
-See [MEMORY_GRAPH_VISUALIZATION.md](./MEMORY_GRAPH_VISUALIZATION.md) and [PROCEDURAL_MEMORY_IMPLEMENTATION.md](./PROCEDURAL_MEMORY_IMPLEMENTATION.md) for detailed documentation.
 
 ### Conversation Threads
 
@@ -507,7 +530,6 @@ User: "Show me how many articles each organization is mentioned in"
 Agent: [Uses text2cypher to generate appropriate Cypher query, then execute_cypher to run it]
 ```
 
-See [SCHEMA_CYPHER_TOOLS.md](./SCHEMA_CYPHER_TOOLS.md) for complete documentation.
 
 ## Project Structure
 
@@ -740,7 +762,6 @@ The frontend uses:
 - **Next.js 14** - React framework with App Router
 - **Chakra UI** - Component library
 - **TypeScript** - Type safety
-- **Axios** - HTTP client
 
 To modify the UI, edit components in `frontend/components/`.
 
@@ -790,8 +811,7 @@ To modify the UI, edit components in `frontend/components/`.
 - React 18
 - TypeScript
 - Chakra UI v3 - Component library
-- Axios - HTTP client
-- React Sigma (Sigma.js) - Graph visualization
+- NVL - Graph visualization
 
 ### Database
 - Neo4j 5.x (5.14.0 recommended)
@@ -799,7 +819,7 @@ To modify the UI, edit components in `frontend/components/`.
 
 ## Workshop Materials
 
-This repository includes comprehensive workshop materials in the `workshop/` directory:
+The `workshop/` directory contains:
 
 - **Hands-on Exercises**: Step-by-step exercises covering:
   - Exercise 1: Short-term memory with Pydantic AI
@@ -811,15 +831,6 @@ This repository includes comprehensive workshop materials in the `workshop/` dir
 
 See [workshop/README.md](./workshop/README.md) for the complete workshop guide.
 
-## Additional Documentation
-
-- [VECTOR_SEARCH_IMPLEMENTATION.md](./VECTOR_SEARCH_IMPLEMENTATION.md) - Vector search technical details
-- [GEOSPATIAL_TIME_SEARCH.md](./GEOSPATIAL_TIME_SEARCH.md) - Geospatial and time-based search
-- [MEMORY_GRAPH_VISUALIZATION.md](./MEMORY_GRAPH_VISUALIZATION.md) - Memory graph visualization guide
-- [PROCEDURAL_MEMORY_IMPLEMENTATION.md](./PROCEDURAL_MEMORY_IMPLEMENTATION.md) - Procedural memory technical details
-- [SCHEMA_CYPHER_TOOLS.md](./SCHEMA_CYPHER_TOOLS.md) - Schema tools and Cypher generation
-- [MCP_INTEGRATION.md](./backend/MCP_INTEGRATION.md) - Model Context Protocol integration
-- [CODESPACES_SETUP.md](./CODESPACES_SETUP.md) - GitHub Codespaces setup guide
 
 ## License
 
