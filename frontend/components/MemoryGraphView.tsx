@@ -134,6 +134,10 @@ export default function MemoryGraphView({ isOpen, onClose }: MemoryGraphViewProp
     if (node.labels.includes('Tool')) return 'Tool'
     if (node.labels.includes('UserPreference')) return 'UserPreference'
     if (node.labels.includes('PreferenceCategory')) return 'PreferenceCategory'
+    if (node.labels.includes('Location')) return 'Location'
+    if (node.labels.includes('Person')) return 'Person'
+    if (node.labels.includes('Organization')) return 'Organization'
+    if (node.labels.includes('Topic')) return 'Topic'
     return node.labels[0] || 'Unknown'
   }
 
@@ -146,8 +150,10 @@ export default function MemoryGraphView({ isOpen, onClose }: MemoryGraphViewProp
       return 'short-term'
     }
     
-    // User profile memory: preferences and categories
-    if (nodeType === 'UserPreference' || nodeType === 'PreferenceCategory') {
+    // User profile memory: preferences, categories, and entities
+    if (nodeType === 'UserPreference' || nodeType === 'PreferenceCategory' ||
+        nodeType === 'Location' || nodeType === 'Person' || 
+        nodeType === 'Organization' || nodeType === 'Topic') {
       return 'user-profile'
     }
     
@@ -171,7 +177,7 @@ export default function MemoryGraphView({ isOpen, onClose }: MemoryGraphViewProp
       bg: 'rgba(255, 196, 84, 0.08)',     // Light yellow/gold
       border: '#FFC454',
       label: 'User Profile Memory',
-      description: 'Preferences & Categories'
+      description: 'Preferences, Categories & Entities'
     },
     'procedural': {
       bg: 'rgba(141, 204, 147, 0.08)',    // Light green
@@ -190,6 +196,10 @@ export default function MemoryGraphView({ isOpen, onClose }: MemoryGraphViewProp
     Tool: '#C990C0',             // Purple - canonical tools
     UserPreference: '#FFC454',   // Yellow/Gold - user preferences (NVL default)
     PreferenceCategory: '#DA7194', // Pink - preference categories
+    Location: '#68BDF6',         // Light blue - locations
+    Person: '#DE9BF9',           // Light purple - people
+    Organization: '#FB95AF',     // Light pink - organizations
+    Topic: '#A4DD00',            // Lime green - topics
   }
 
   // Helper function to format property values (especially dates)
@@ -273,6 +283,14 @@ export default function MemoryGraphView({ isOpen, onClose }: MemoryGraphViewProp
         return pref.substring(0, 35) + (pref.length > 35 ? '...' : '')
       case 'PreferenceCategory':
         return props.name || 'Category'
+      case 'Location':
+        return props.name || 'Location'
+      case 'Person':
+        return props.name || 'Person'
+      case 'Organization':
+        return props.name || 'Organization'
+      case 'Topic':
+        return props.name || 'Topic'
       default:
         return props.name || props.title || nodeType
     }
@@ -318,6 +336,10 @@ export default function MemoryGraphView({ isOpen, onClose }: MemoryGraphViewProp
       else if (nodeType === 'ToolCall') baseSize = 14
       else if (nodeType === 'UserPreference') baseSize = 16
       else if (nodeType === 'PreferenceCategory') baseSize = 20
+      else if (nodeType === 'Location') baseSize = 18
+      else if (nodeType === 'Person') baseSize = 18
+      else if (nodeType === 'Organization') baseSize = 18
+      else if (nodeType === 'Topic') baseSize = 18
 
       return {
         id: node.id,
@@ -424,7 +446,7 @@ export default function MemoryGraphView({ isOpen, onClose }: MemoryGraphViewProp
                 Complete Memory Graph
               </Text>
               <Text fontSize="xs" color="gray.600">
-                Short-term, procedural, and profile memory
+                Short-term, procedural, and user profile memory with entities
               </Text>
               {graphData && (
                 <HStack gap={2} mt={1}>
@@ -653,6 +675,22 @@ export default function MemoryGraphView({ isOpen, onClose }: MemoryGraphViewProp
                         <HStack gap={2}>
                           <Box w={3} h={3} borderRadius="full" bg={NODE_COLORS.PreferenceCategory} flexShrink={0} />
                           <Text color="gray.700">Category</Text>
+                        </HStack>
+                        <HStack gap={2}>
+                          <Box w={3} h={3} borderRadius="full" bg={NODE_COLORS.Location} flexShrink={0} />
+                          <Text color="gray.700">Location</Text>
+                        </HStack>
+                        <HStack gap={2}>
+                          <Box w={3} h={3} borderRadius="full" bg={NODE_COLORS.Person} flexShrink={0} />
+                          <Text color="gray.700">Person</Text>
+                        </HStack>
+                        <HStack gap={2}>
+                          <Box w={3} h={3} borderRadius="full" bg={NODE_COLORS.Organization} flexShrink={0} />
+                          <Text color="gray.700">Organization</Text>
+                        </HStack>
+                        <HStack gap={2}>
+                          <Box w={3} h={3} borderRadius="full" bg={NODE_COLORS.Topic} flexShrink={0} />
+                          <Text color="gray.700">Topic</Text>
                         </HStack>
                       </VStack>
                     </Box>
@@ -953,7 +991,11 @@ export default function MemoryGraphView({ isOpen, onClose }: MemoryGraphViewProp
                         </HStack>
                         <VStack align="stretch" gap={0.5} pl={4}>
                           {Object.entries(graphStats.nodes)
-                            .filter(([label]) => label === 'UserPreference' || label === 'PreferenceCategory')
+                            .filter(([label]) => 
+                              label === 'UserPreference' || label === 'PreferenceCategory' ||
+                              label === 'Location' || label === 'Person' || 
+                              label === 'Organization' || label === 'Topic'
+                            )
                             .map(([label, count]) => {
                               const color = NODE_COLORS[label as keyof typeof NODE_COLORS] || '#CCCCCC'
                               return (

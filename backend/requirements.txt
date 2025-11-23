@@ -5,3 +5,4 @@ neo4j==5.14.1
 python-dotenv==1.0.0
 pydantic>=2.10
 openai>=1.0.0
+geopy>=2.4.0

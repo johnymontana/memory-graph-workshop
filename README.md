@@ -52,6 +52,12 @@ Interactive graph visualization to inspect the memory graph.
 
 ![View memory graph visualzation](img/procedural-memory-viz.png)
 
+### Episodic memory construction
+
+Entity extraction, resolution and context management for user preferences
+
+![User profile memory visualization](img/user-profile-memory.png)
+
 ## Architecture
 
 ```

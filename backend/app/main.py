@@ -1188,13 +1188,13 @@ async def chat(message: ChatMessage):
                 print("⚠️  Memory requested but not available, using default agent\n")
                 agent = news_agent
             else:
-                # Get preferences and create agent with preference context
-                preference_context = memory_provider.get_preference_context()
+                # Get preferences with relevance filtering based on current query
+                preference_context = await memory_provider.get_preference_context_async(message.message)
                 if preference_context:
-                    print(f"Using preferences:\n{preference_context}\n")
+                    print(f"Using relevant preferences for query:\n{preference_context}\n")
                     agent = create_agent_with_preferences(preference_context)
                 else:
-                    print("Memory enabled but no preferences found, using default agent\n")
+                    print("Memory enabled but no relevant preferences found, using default agent\n")
                     agent = news_agent
         else:
             agent = news_agent
@@ -1802,6 +1802,12 @@ def build_complete_memory_graph() -> Dict[str, Any]:
                 OPTIONAL MATCH (tc)-[instance_of:INSTANCE_OF]->(tool:Tool)
                 OPTIONAL MATCH (pref:UserPreference)-[in_cat:IN_CATEGORY]->(cat:PreferenceCategory)
                 
+                // Match entity relationships
+                OPTIONAL MATCH (pref)-[ref_loc:REFERS_TO_LOCATION]->(loc:Location)
+                OPTIONAL MATCH (pref)-[ref_per:REFERS_TO_PERSON]->(per:Person)
+                OPTIONAL MATCH (pref)-[ref_org:REFERS_TO_ORGANIZATION]->(org:Organization)
+                OPTIONAL MATCH (pref)-[ref_top:REFERS_TO_TOPIC]->(top:Topic)
+                
                 RETURN 
                     // Threads
                     collect(DISTINCT {
@@ -1851,6 +1857,31 @@ def build_complete_memory_graph() -> Dict[str, Any]:
                         labels: labels(cat),
                         properties: properties(cat)
                     }) as categories,
+                    
+                    // Entities
+                    collect(DISTINCT {
+                        id: toString(id(loc)),
+                        labels: labels(loc),
+                        properties: properties(loc)
+                    }) as locations,
+                    
+                    collect(DISTINCT {
+                        id: toString(id(per)),
+                        labels: labels(per),
+                        properties: properties(per)
+                    }) as persons,
+                    
+                    collect(DISTINCT {
+                        id: toString(id(org)),
+                        labels: labels(org),
+                        properties: properties(org)
+                    }) as organizations,
+                    
+                    collect(DISTINCT {
+                        id: toString(id(top)),
+                        labels: labels(top),
+                        properties: properties(top)
+                    }) as topics,
                     
                     // Relationships
                     collect(DISTINCT {
@@ -1915,7 +1946,40 @@ def build_complete_memory_graph() -> Dict[str, Any]:
                         to: toString(id(cat)),
                         type: type(in_cat),
                         properties: {}
-                    }) as pref_cat_rels
+                    }) as pref_cat_rels,
+                    
+                    // Entity relationships
+                    collect(DISTINCT {
+                        id: toString(id(ref_loc)),
+                        from: toString(id(pref)),
+                        to: toString(id(loc)),
+                        type: type(ref_loc),
+                        properties: properties(ref_loc)
+                    }) as pref_loc_rels,
+                    
+                    collect(DISTINCT {
+                        id: toString(id(ref_per)),
+                        from: toString(id(pref)),
+                        to: toString(id(per)),
+                        type: type(ref_per),
+                        properties: properties(ref_per)
+                    }) as pref_per_rels,
+                    
+                    collect(DISTINCT {
+                        id: toString(id(ref_org)),
+                        from: toString(id(pref)),
+                        to: toString(id(org)),
+                        type: type(ref_org),
+                        properties: properties(ref_org)
+                    }) as pref_org_rels,
+                    
+                    collect(DISTINCT {
+                        id: toString(id(ref_top)),
+                        from: toString(id(pref)),
+                        to: toString(id(top)),
+                        type: type(ref_top),
+                        properties: properties(ref_top)
+                    }) as pref_top_rels
                 """
             )
             
@@ -1929,7 +1993,11 @@ def build_complete_memory_graph() -> Dict[str, Any]:
                     record["tool_calls"],
                     record["tools"],
                     record["preferences"],
-                    record["categories"]
+                    record["categories"],
+                    record["locations"],
+                    record["persons"],
+                    record["organizations"],
+                    record["topics"]
                 ]:
                     for node in node_list:
                         if node.get("id") and node.get("id") != "null":
@@ -1947,7 +2015,11 @@ def build_complete_memory_graph() -> Dict[str, Any]:
                     record["step_next_rels"],
                     record["step_tool_rels"],
                     record["toolcall_tool_rels"],
-                    record["pref_cat_rels"]
+                    record["pref_cat_rels"],
+                    record["pref_loc_rels"],
+                    record["pref_per_rels"],
+                    record["pref_org_rels"],
+                    record["pref_top_rels"]
                 ]:
                     for rel in rel_list:
                         if rel.get("id") and rel.get("id") != "null" and rel.get("from") and rel.get("to"):
